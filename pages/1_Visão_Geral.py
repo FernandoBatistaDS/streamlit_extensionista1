@@ -160,6 +160,7 @@ with tb2:
     educacao_data_diabetico.columns = ['Educacao', 'Quantidade']
 
     with st.container():
+        st.header('Total diabeticos')
         col1, col2, col3, col4, col5, col6 = st.columns(6)
         with col1:
             col1.metric('Nunca Frequentou', educacao_data_diabetico[educacao_data['Educacao'] == 'Nunca frequentou']['Quantidade'])
@@ -197,6 +198,7 @@ with tb3:
     renda_data_diabetico.columns = ['Renda', 'Quantidade']
 
     with st.container():
+        st.header('Total diabeticos')
         col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(8)
         with col1:
             col1.metric('Até 10Mil', renda_data_diabetico[renda_data['Renda'] == 'Até 10Mil']['Quantidade'])
