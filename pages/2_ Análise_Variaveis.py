@@ -1,12 +1,9 @@
-import pandas as pd
-import numpy as np
-# import plotly.express as px
-# import re
-# import folium
-# from haversine import haversine
+import pandas               as  pd
+import numpy                as  np
+import matplotlib.pyplot    as  plt
+import streamlit            as  st
+import seaborn              as sns
 
-import streamlit as st
-# from streamlit_folium import folium_static
 
 st.set_page_config(page_title='Análise das Variaveis', layout='wide', page_icon='🧪')
 
@@ -116,25 +113,185 @@ data = data.loc[linhas_selecionadas, :]
 tb1, tb2 = st.tabs(['Atividade física', 'Saúde'])
 
 with tb1:
-    with st.container():
+    st.markdown(
+            """
+                <h2 style='text-align: center;'>Idades com dificuldades para andar ou subir escadas</h2>
+                <p style='text-align: center;'>Quem tem mais dificudades, provavelmente tem diabates, vamos ver os dados!</p>
+            """,
+            unsafe_allow_html=True
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
         st.markdown(
-                """
-                    ### Dificuldade para andar ou subir escadas?
-                    Quem tem mais dificudades, provavelmente tem diabates, vamos ver os dados!
-                """
+            """
+            <h3 style='text-align: center;'>Diabéticos</h3>
+            """,
+            unsafe_allow_html=True
         )
 
-        df_walk = data.loc[:, ['DiffWalk', 'Age', 'Diabetes_binary']];
-        df_walk = df_walk.loc[:, ['DiffWalk', 'Age', 'Diabetes_binary']].reset_index().groupby(['DiffWalk', 'Diabetes_binary']).sum().reset_index()
-        df_walk
+        df_walk                         =   data.loc[:, ['Age', 'DiffWalk', 'Diabetes_binary']]
+        df_walk                         =   df_walk.loc[:, ['Age', 'DiffWalk', 'Diabetes_binary']].groupby(['Age', 'DiffWalk']).sum().reset_index()
+        df_walk.columns                 =   ['Idade', 'Dificuldade Andar', 'Quantidade']
+
+        # Separação no eixo "X"
+        species                         =   list(df_walk['Idade'].unique())
+        # species
+
+        andar_counts = {
+            'Tem dificuldade': np.array(df_walk.loc[df_walk['Dificuldade Andar'] == 1, 'Quantidade']),
+            'Não tem dificuldade': np.array(df_walk.loc[df_walk['Dificuldade Andar'] == 0, 'Quantidade']),
+        }
+
+        width = 0.8  # the width of the bars: can also be len(x) sequence
+
+        fig, ax = plt.subplots()
+        bottom  = np.zeros(len(species))
+
+        for andar, andar_count in andar_counts.items():
+            p = ax.bar(species, andar_count, width, label=andar, bottom=bottom)
+            bottom += andar_count
+
+        ax.set_title('Idade dos diabéticos')
+        ax.legend()
+
+        st.pyplot(plt)
+
+    with col2:
+        st.markdown(
+            """
+            <h3 style='text-align: center;'>Não diabéticos</h3>
+            """,
+            unsafe_allow_html=True
+        )
+
+        df_walk                         =   data.loc[data['Diabetes_binary'] == 0, ['Age', 'DiffWalk', 'Diabetes_binary']]
+        df_walk                         =   df_walk.loc[:, ['Age', 'DiffWalk', 'Diabetes_binary']].groupby(['Age', 'DiffWalk']).count().reset_index()
+        df_walk.columns                 =   ['Idade', 'Dificuldade Andar', 'Quantidade']
+
+        # Separação no eixo "X"
+        species                         =   list(df_walk['Idade'].unique())
+        # species
+
+        andar_counts = {
+            'Tem dificuldade': np.array(df_walk.loc[df_walk['Dificuldade Andar'] == 1, 'Quantidade']),
+            'Não tem dificuldade': np.array(df_walk.loc[df_walk['Dificuldade Andar'] == 0, 'Quantidade']),
+        }
+
+        width = 0.8  # the width of the bars: can also be len(x) sequence
+
+        fig, ax = plt.subplots()
+        bottom  = np.zeros(len(species))
+
+        for andar, andar_count in andar_counts.items():
+            p = ax.bar(species, andar_count, width, label=andar, bottom=bottom)
+            bottom += andar_count
+
+        ax.set_title('Idade dos não diabéticos')
+        ax.legend()
+
+        st.pyplot(plt)
 
 
 with tb2:
-    with st.container():
+    st.markdown(
+            """
+                <h2 style='text-align: center;'>Saúde</h2>
+            """,
+            unsafe_allow_html=True
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
         st.markdown(
-                """
-                    ### Dificuldade para andar ou subir escadas?
-                    Quem tem mais dificudades, provavelmente tem diabates, vamos ver os dados!
-                """
+            """
+            <h3 style='text-align: center;'>Plano de saúde</h3>
+            """,
+            unsafe_allow_html=True
         )
 
+        df_plan                     =   data.loc[:, ['AnyHealthcare', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'AnyHealthcare']).count().reset_index()
+        df_plan.columns             =   ['Diabetico', 'Plano de Saúde', 'Quantidade']
+        df_plan['Diabetico']        =   df_plan['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+        df_plan['Plano de Saúde']   =   df_plan['Plano de Saúde'].map({ 0: 'Não tem', 1: 'Sim'})
+
+        # Criando o gráfico de barras com hue
+        plt.figure(figsize=(8, 6))
+        sns.barplot(x='Plano de Saúde', y='Quantidade', hue='Diabetico', data=df_plan)
+
+        # Adicionando rótulos ao eixo x e y
+        plt.xlabel('Tem plano de saúde?')
+        plt.ylabel('Quantidades')
+        plt.title('Plano de saúde')
+
+        # # Exibindo a legenda
+        # plt.legend(title='Jeu')
+
+        # Exibindo o gráfico
+        st.pyplot(plt)
+
+    with col2:
+        st.markdown(
+            """
+            <h3 style='text-align: center;'>Não consultou um médico por ser caro?</h3>
+            """,
+            unsafe_allow_html=True
+        )
+
+        df_cost                     =   data.loc[:, ['NoDocbcCost', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'NoDocbcCost']).count().reset_index()
+        df_cost.columns             =   ['Diabetico', 'Consulta', 'Quantidade']
+        df_cost['Diabetico']        =   df_cost['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+        df_cost['Consulta']         =   df_cost['Consulta'].map({ 0: 'Pôde consultar', 1: 'Não pôde consultar'})
+
+        # Criando o gráfico de barras com hue
+        plt.figure(figsize=(8, 6))
+        sns.barplot(x='Consulta', y='Quantidade', hue='Diabetico', data=df_cost)
+
+        # Adicionando rótulos ao eixo x e y
+        plt.xlabel('Consulta')
+        plt.ylabel('Quantidades')
+        plt.title('Consultas por ser caro')
+
+        # # Exibindo a legenda
+        # plt.legend(title='Jeu')
+
+        # Exibindo o gráfico
+        st.pyplot(plt)
+
+with st.container():
+    st.markdown(
+            """
+                <h2 style='text-align: center;'>Como o paciente se sente de saúde: escala de 1 a 5</h2>
+                <div style='text-align: center;'>
+                    1 = Excelente<br>
+                    2 = Muito boa<br>
+                    3 = Boa<br>
+                    4 = Razoável<br>
+                    5 = Ruim
+                <div>
+                <br>
+            """,
+            unsafe_allow_html=True
+    )
+
+    df_plan                     =   data.loc[:, ['GenHlth', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'GenHlth']).count().reset_index()
+    df_plan.columns             =   ['Diabetico', 'Saúde', 'Quantidade']
+    df_plan['Diabetico']        =   df_plan['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+    df_plan['Saúde']   =   df_plan['Saúde'].map({ 1: '1 - Excelente', 2: '2 - Muito boa', 3: '3 - Boa', 4: '4 - Razoável', 5: '5 - Ruim'})
+
+    # Criando o gráfico de barras com hue
+    plt.figure(figsize=(8, 6))
+    sns.lineplot(x='Saúde', y='Quantidade', hue='Diabetico', data=df_plan)
+
+    # Adicionando rótulos ao eixo x e y
+    plt.xlabel('Nota para a saúde')
+    plt.ylabel('Quantidades')
+    plt.title('Saúde')
+
+    # # Exibindo a legenda
+    # plt.legend(title='Jeu')
+
+    # Exibindo o gráfico
+    st.pyplot(plt)
