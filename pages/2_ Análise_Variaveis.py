@@ -260,38 +260,109 @@ with tb2:
         # Exibindo o gráfico
         st.pyplot(plt)
 
-with st.container():
-    st.markdown(
-            """
-                <h2 style='text-align: center;'>Como o paciente se sente de saúde: escala de 1 a 5</h2>
-                <div style='text-align: center;'>
-                    1 = Excelente<br>
-                    2 = Muito boa<br>
-                    3 = Boa<br>
-                    4 = Razoável<br>
-                    5 = Ruim
-                <div>
-                <br>
-            """,
-            unsafe_allow_html=True
-    )
+    with st.container():
+        st.markdown(
+                """
+                    <h2 style='text-align: center;'>Como o paciente se sente de saúde: escala de 1 a 5</h2>
+                    <div style='text-align: center;'>
+                        1 = Excelente<br>
+                        2 = Muito boa<br>
+                        3 = Boa<br>
+                        4 = Razoável<br>
+                        5 = Ruim
+                    <div>
+                    <br>
+                """,
+                unsafe_allow_html=True
+        )
 
-    df_plan                     =   data.loc[:, ['GenHlth', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'GenHlth']).count().reset_index()
-    df_plan.columns             =   ['Diabetico', 'Saúde', 'Quantidade']
-    df_plan['Diabetico']        =   df_plan['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
-    df_plan['Saúde']   =   df_plan['Saúde'].map({ 1: '1 - Excelente', 2: '2 - Muito boa', 3: '3 - Boa', 4: '4 - Razoável', 5: '5 - Ruim'})
+        df_plan                     =   data.loc[:, ['GenHlth', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'GenHlth']).count().reset_index()
+        df_plan.columns             =   ['Diabetico', 'Saúde', 'Quantidade']
+        df_plan['Diabetico']        =   df_plan['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+        df_plan['Saúde']   =   df_plan['Saúde'].map({ 1: '1 - Excelente', 2: '2 - Muito boa', 3: '3 - Boa', 4: '4 - Razoável', 5: '5 - Ruim'})
 
-    # Criando o gráfico de barras com hue
-    plt.figure(figsize=(8, 6))
-    sns.lineplot(x='Saúde', y='Quantidade', hue='Diabetico', data=df_plan)
+        # Criando o gráfico de barras com hue
+        plt.figure(figsize=(8, 6))
+        sns.lineplot(x='Saúde', y='Quantidade', hue='Diabetico', data=df_plan)
 
-    # Adicionando rótulos ao eixo x e y
-    plt.xlabel('Nota para a saúde')
-    plt.ylabel('Quantidades')
-    plt.title('Saúde')
+        # Adicionando rótulos ao eixo x e y
+        plt.xlabel('Nota para a saúde')
+        plt.ylabel('Quantidades')
+        plt.title('Saúde')
 
-    # # Exibindo a legenda
-    # plt.legend(title='Jeu')
+        # # Exibindo a legenda
+        # plt.legend(title='Jeu')
 
-    # Exibindo o gráfico
-    st.pyplot(plt)
+        # Exibindo o gráfico
+        st.pyplot(plt)
+
+    with st.container():
+        st.markdown(
+                """
+                    <h2 style='text-align: center;'>Saúde mental</h2>
+                """,
+                unsafe_allow_html=True
+        )
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown(
+                """
+                <h3 style='text-align: center;'>Saúde mental</h3>
+                Por quantos dias durante os últimos 30 dias sua saúde mental não foi boa?
+                """,
+                unsafe_allow_html=True
+            )
+
+            df_ment                     =   data.loc[:, ['MentHlth', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'MentHlth']).count().reset_index()
+            df_ment.columns             =   ['Diabetico', 'Dias saúde mental', 'Quantidade']
+            df_ment['Diabetico']        =   df_ment['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+
+            # Criando o gráfico de barras com hue
+            plt.figure(figsize=(8, 6))
+            sns.lineplot(x='Dias saúde mental', y='Quantidade', hue='Diabetico', data=df_ment)
+
+            # Adicionando rótulos ao eixo x e y
+            plt.xlabel('Quantidades de dias ruins de saúde mental nos ultimos 30 dias')
+            plt.ylabel('Quantidades')
+            plt.title('Número de dias com saúde mental comprometida nos últimos 30 dias')
+
+            # # Exibindo a legenda
+            # plt.legend(title='Jeu')
+
+            # Exibindo o gráfico
+            st.pyplot(plt)
+            df_ment_table = df_ment[['Diabetico', 'Dias saúde mental', 'Quantidade']].sort_values('Dias saúde mental').reset_index(drop=True)
+            st.table(df_ment_table)
+
+        with col2:
+            st.markdown(
+                """
+                <h3 style='text-align: center;'>Saúde física</h3>
+                Por quantos dias durante os últimos 30 dias sua saúde física não foi boa?
+                """,
+                unsafe_allow_html=True
+            )
+
+            df_phys                     =   data.loc[:, ['PhysHlth', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'PhysHlth']).count().reset_index()
+            df_phys.columns             =   ['Diabetico', 'Dias saúde física', 'Quantidade']
+            df_phys['Diabetico']        =   df_phys['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+
+            # Criando o gráfico de barras com hue
+            plt.figure(figsize=(8, 6))
+            sns.lineplot(x='Dias saúde física', y='Quantidade', hue='Diabetico', data=df_phys)
+
+            # Adicionando rótulos ao eixo x e y
+            plt.xlabel('Quantidades de dias ruins de saúde física nos ultimos 30 dias')
+            plt.ylabel('Quantidades')
+            plt.title('Número de dias com saúde física comprometida nos últimos 30 dias')
+
+            # # Exibindo a legenda
+            # plt.legend(title='Jeu')
+
+            # Exibindo o gráfico
+            st.pyplot(plt)
+            df_phys_table = df_phys[['Diabetico', 'Dias saúde física', 'Quantidade']].sort_values('Dias saúde física').reset_index(drop=True)
+            st.table(df_phys_table)
+
