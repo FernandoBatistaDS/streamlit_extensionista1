@@ -110,7 +110,7 @@ data = data.loc[linhas_selecionadas, :]
 # --------------
 # STREAMLIT - LAYOUT CONTAINER
 # --------------
-tb1, tb2 = st.tabs(['Atividade física', 'Saúde'])
+tb1, tb2, tb3, tb4 = st.tabs(['Atividade física', 'Saúde', 'Alimentação', 'Doença'])
 
 with tb1:
     st.markdown(
@@ -121,12 +121,12 @@ with tb1:
             unsafe_allow_html=True
     )
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         st.markdown(
             """
-            <h3 style='text-align: center;'>Diabéticos</h3>
+            <h4 style='text-align: center;'>Diabéticos</h4>
             """,
             unsafe_allow_html=True
         )
@@ -161,7 +161,35 @@ with tb1:
     with col2:
         st.markdown(
             """
-            <h3 style='text-align: center;'>Não diabéticos</h3>
+            <h4 style='text-align: center;'>Atividade nos últimos 30 dias</h4>
+            """,
+            unsafe_allow_html=True
+        )
+
+        df_cost                     =   data.loc[:, ['PhysActivity', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'PhysActivity']).count().reset_index()
+        df_cost.columns             =   ['Diabetico', 'Consulta', 'Quantidade']
+        df_cost['Diabetico']        =   df_cost['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+        df_cost['Consulta']         =   df_cost['Consulta'].map({ 0: 'Não', 1: 'Sim'})
+
+        # Criando o gráfico de barras com hue
+        plt.figure(figsize=(8, 6))
+        sns.barplot(x='Consulta', y='Quantidade', hue='Diabetico', data=df_cost)
+
+        # Adicionando rótulos ao eixo x e y
+        plt.xlabel('Fez atividade física nos últimos 30 dias?')
+        plt.ylabel('Quantidades')
+        plt.title('Atividade fisica')
+
+        # # Exibindo a legenda
+        # plt.legend(title='Jeu')
+
+        # Exibindo o gráfico
+        st.pyplot(plt)
+
+    with col3:
+        st.markdown(
+            """
+            <h4 style='text-align: center;'>Não diabéticos</h4>
             """,
             unsafe_allow_html=True
         )
@@ -207,7 +235,7 @@ with tb2:
     with col1:
         st.markdown(
             """
-            <h3 style='text-align: center;'>Plano de saúde</h3>
+            <h4 style='text-align: center;'>Plano de saúde</h4>
             """,
             unsafe_allow_html=True
         )
@@ -235,7 +263,7 @@ with tb2:
     with col2:
         st.markdown(
             """
-            <h3 style='text-align: center;'>Não consultou um médico por ser caro?</h3>
+            <h4 style='text-align: center;'>Não consultou um médico por ser caro?</h4>
             """,
             unsafe_allow_html=True
         )
@@ -309,7 +337,7 @@ with tb2:
         with col1:
             st.markdown(
                 """
-                <h3 style='text-align: center;'>Saúde mental</h3>
+                <h4 style='text-align: center;'>Saúde mental</h4>
                 Por quantos dias durante os últimos 30 dias sua saúde mental não foi boa?
                 """,
                 unsafe_allow_html=True
@@ -339,7 +367,7 @@ with tb2:
         with col2:
             st.markdown(
                 """
-                <h3 style='text-align: center;'>Saúde física</h3>
+                <h4 style='text-align: center;'>Saúde física</h4>
                 Por quantos dias durante os últimos 30 dias sua saúde física não foi boa?
                 """,
                 unsafe_allow_html=True
@@ -366,3 +394,270 @@ with tb2:
             df_phys_table = df_phys[['Diabetico', 'Dias saúde física', 'Quantidade']].sort_values('Dias saúde física').reset_index(drop=True)
             st.table(df_phys_table)
 
+with tb3:
+    st.markdown(
+            """
+                <h2 style='text-align: center;'>Alimentação</h2>
+            """,
+            unsafe_allow_html=True
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown(
+            """
+            <h4 style='text-align: center;'>Frutas</h4>
+            """,
+            unsafe_allow_html=True
+        )
+
+        df_fruits                   =   data.loc[:, ['Fruits', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'Fruits']).count().reset_index()
+        df_fruits.columns           =   ['Diabetico', 'Frutas', 'Quantidade']
+        df_fruits['Diabetico']      =   df_fruits['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+        df_fruits['Frutas']         =   df_fruits['Frutas'].map({ 0: 'Não', 1: 'Sim'})
+
+        # Criando o gráfico de barras com hue
+        plt.figure(figsize=(8, 6))
+        sns.barplot(x='Frutas', y='Quantidade', hue='Diabetico', data=df_fruits)
+
+        # Adicionando rótulos ao eixo x e y
+        plt.xlabel('Consumir frutas 1 ou mais vezes ao dia?')
+        plt.ylabel('Quantidades')
+
+        # # Exibindo a legenda
+        # plt.legend(title='Jeu')
+
+        # Exibindo o gráfico
+        st.pyplot(plt)
+
+    with col2:
+        st.markdown(
+            """
+            <h4 style='text-align: center;'>Vegetais</h4>
+            """,
+            unsafe_allow_html=True
+        )
+
+        df_veggies                     =   data.loc[:, ['Veggies', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'Veggies']).count().reset_index()
+        df_veggies.columns             =   ['Diabetico', 'Vegetais', 'Quantidade']
+        df_veggies['Diabetico']        =   df_veggies['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+        df_veggies['Vegetais']         =   df_veggies['Vegetais'].map({ 0: 'Não', 1: 'Sim'})
+
+        # Criando o gráfico de barras com hue
+        plt.figure(figsize=(8, 6))
+        sns.barplot(x='Vegetais', y='Quantidade', hue='Diabetico', data=df_veggies)
+
+        # Adicionando rótulos ao eixo x e y
+        plt.xlabel('Consumir Legumes 1 ou mais vezes ao dia?')
+        plt.ylabel('Quantidades')
+
+        # # Exibindo a legenda
+        # plt.legend(title='Jeu')
+
+        # Exibindo o gráfico
+        st.pyplot(plt)
+
+with tb4:
+    st.markdown(
+            """
+                <h2 style='text-align: center;'>Doenças</h2>
+            """,
+            unsafe_allow_html=True
+    )
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown(
+            """
+            <h4 style='text-align: center;'>Pressão arterial alta</h4>
+            <br>
+            """,
+            unsafe_allow_html=True
+        )
+
+        df_pb                   =   data.loc[:, ['HighBP', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'HighBP']).count().reset_index()
+        df_pb.columns           =   ['Diabetico', 'Pressão alta', 'Quantidade']
+        df_pb['Diabetico']      =   df_pb['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+        df_pb['Pressão alta']   =   df_pb['Pressão alta'].map({ 0: 'Não', 1: 'Sim'})
+
+        # Criando o gráfico de barras com hue
+        plt.figure(figsize=(8, 6))
+        sns.barplot(x='Pressão alta', y='Quantidade', hue='Diabetico', data=df_pb)
+
+        # Adicionando rótulos ao eixo x e y
+        plt.xlabel('Pressão alta?')
+        plt.ylabel('Quantidades')
+
+        # # Exibindo a legenda
+        # plt.legend(title='Jeu')
+
+        # Exibindo o gráfico
+        st.pyplot(plt)
+
+    with col2:
+        st.markdown(
+            """
+            <h4 style='text-align: center;'>Doença coronariana ou infarto do miocárdio</h4>
+            """,
+            unsafe_allow_html=True
+        )
+
+        df_chol                     =   data.loc[:, ['HeartDiseaseorAttack', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'HeartDiseaseorAttack']).count().reset_index()
+        df_chol.columns             =   ['Diabetico', 'Teve doença', 'Quantidade']
+        df_chol['Diabetico']        =   df_chol['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+        df_chol['Teve doença']      =   df_chol['Teve doença'].map({ 0: 'Não', 1: 'Sim'})
+
+        # Criando o gráfico de barras com hue
+        plt.figure(figsize=(8, 6))
+        sns.barplot(x='Teve doença', y='Quantidade', hue='Diabetico', data=df_chol)
+
+        # Adicionando rótulos ao eixo x e y
+        plt.xlabel('Teve alguma dessa?')
+        plt.ylabel('Quantidades')
+
+        # # Exibindo a legenda
+        # plt.legend(title='Jeu')
+
+        # Exibindo o gráfico
+        st.pyplot(plt)
+
+    with col3:
+        st.markdown(
+            """
+            <h4 style='text-align: center;'>Colesterol alto</h4>
+            <br>
+            """,
+            unsafe_allow_html=True
+        )
+
+        df_chol                     =   data.loc[:, ['HighChol', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'HighChol']).count().reset_index()
+        df_chol.columns             =   ['Diabetico', 'Colesterol alto', 'Quantidade']
+        df_chol['Diabetico']        =   df_chol['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+        df_chol['Colesterol alto']         =   df_chol['Colesterol alto'].map({ 0: 'Não', 1: 'Sim'})
+
+        # Criando o gráfico de barras com hue
+        plt.figure(figsize=(8, 6))
+        sns.barplot(x='Colesterol alto', y='Quantidade', hue='Diabetico', data=df_chol)
+
+        # Adicionando rótulos ao eixo x e y
+        plt.xlabel('Colesterol alto?')
+        plt.ylabel('Quantidades')
+
+        # # Exibindo a legenda
+        # plt.legend(title='Jeu')
+
+        # Exibindo o gráfico
+        st.pyplot(plt)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown(
+            """
+            <h4 style='text-align: center;'>Verificação de colesterol em 5 anos</h4>
+            """,
+            unsafe_allow_html=True
+        )
+
+        df_chol                     =   data.loc[:, ['CholCheck', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'CholCheck']).count().reset_index()
+        df_chol.columns             =   ['Diabetico', 'Colesterol alto', 'Quantidade']
+        df_chol['Diabetico']        =   df_chol['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+        df_chol['Colesterol alto']         =   df_chol['Colesterol alto'].map({ 0: 'Não', 1: 'Sim'})
+
+        # Criando o gráfico de barras com hue
+        plt.figure(figsize=(8, 6))
+        sns.barplot(x='Colesterol alto', y='Quantidade', hue='Diabetico', data=df_chol)
+
+        # Adicionando rótulos ao eixo x e y
+        plt.xlabel('Colesterol alto nos ultimos 5 anos?')
+        plt.ylabel('Quantidades')
+
+        # # Exibindo a legenda
+        # plt.legend(title='Jeu')
+
+        # Exibindo o gráfico
+        st.pyplot(plt)
+
+    with col2:
+        st.markdown(
+            """
+            <h4 style='text-align: center;'>Índice de massa corporal</h4>
+            """,
+            unsafe_allow_html=True
+        )
+
+        df_chol                     =   data.loc[:, ['BMI', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'BMI']).count().reset_index()
+        df_chol.columns             =   ['Diabetico', 'IMC', 'Quantidade']
+        df_chol['Diabetico']        =   df_chol['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+
+        # Criando o gráfico de barras com hue
+        plt.figure(figsize=(8, 6))
+        sns.lineplot(x='IMC', y='Quantidade', hue='Diabetico', data=df_chol)
+
+        # Adicionando rótulos ao eixo x e y
+        plt.xlabel('IMC')
+        plt.ylabel('Quantidades')
+
+        # # Exibindo a legenda
+        # plt.legend(title='Jeu')
+
+        # Exibindo o gráfico
+        st.pyplot(plt)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown(
+            """
+            <h4 style='text-align: center;'>Fumou + de 100 cigarros em toda a vida</h4>
+            """,
+            unsafe_allow_html=True
+        )
+
+        df_chol                     =   data.loc[:, ['Smoker', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'Smoker']).count().reset_index()
+        df_chol.columns             =   ['Diabetico', 'Smoker', 'Quantidade']
+        df_chol['Diabetico']        =   df_chol['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+        df_chol['Smoker']           =   df_chol['Smoker'].map({ 0: 'Não', 1: 'Sim'})
+
+        # Criando o gráfico de barras com hue
+        plt.figure(figsize=(8, 6))
+        sns.barplot(x='Smoker', y='Quantidade', hue='Diabetico', data=df_chol)
+
+        # Adicionando rótulos ao eixo x e y
+        plt.xlabel('Fumou + de 100 cigarros?')
+        plt.ylabel('Quantidades')
+
+        # # Exibindo a legenda
+        # plt.legend(title='Jeu')
+
+        # Exibindo o gráfico
+        st.pyplot(plt)
+
+    with col2:
+        st.markdown(
+            """
+            <h4 style='text-align: center;'>Teve um derrame</h4>
+            """,
+            unsafe_allow_html=True
+        )
+
+        df_chol                     =   data.loc[:, ['Stroke', 'Diabetes_binary']].reset_index().groupby(['Diabetes_binary', 'Stroke']).count().reset_index()
+        df_chol.columns             =   ['Diabetico', 'Stroke', 'Quantidade']
+        df_chol['Diabetico']        =   df_chol['Diabetico'].map({ 0: 'Não', 1: 'Sim'})
+        df_chol['Stroke']           =   df_chol['Stroke'].map({ 0: 'Não', 1: 'Sim'})
+
+        # Criando o gráfico de barras com hue
+        plt.figure(figsize=(8, 6))
+        sns.barplot(x='Stroke', y='Quantidade', hue='Diabetico', data=df_chol)
+
+        # Adicionando rótulos ao eixo x e y
+        plt.xlabel('Já teve um derrame?')
+        plt.ylabel('Quantidades')
+
+        # # Exibindo a legenda
+        # plt.legend(title='Jeu')
+
+        # Exibindo o gráfico
+        st.pyplot(plt)
